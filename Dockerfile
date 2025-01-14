@@ -9,10 +9,8 @@ RUN npm install
 
 COPY --chown=node:node . .
 
-CMD npm run build
-
 EXPOSE 3000
 
 ENV HOST=0.0.0.0 PORT=3000
 
-CMD ["npm", "run", "start:prod"]
+CMD ["npm", "run", "start:dev"]
