@@ -11,8 +11,8 @@ COPY --chown=node:node . .
 
 CMD npm run build
 
-EXPOSE 80
+EXPOSE 3000
 
-ENV HOST=0.0.0.0 PORT=80
+ENV HOST=0.0.0.0 PORT=3000
 
 CMD ["npm", "run", "start:prod"]
