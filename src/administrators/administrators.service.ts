@@ -3,6 +3,7 @@ import { Administrator } from './entities/administrator.entity';
 import { CreateAdministratorDto } from './dto/create-administrator.dto';
 import { UpdateAdministratorDto } from './dto/update-administrator.dto';
 import { PassThrough } from 'stream';
+import { ApiCreatedResponse } from '@nestjs/swagger';
 
 const administrators : Administrator[] = [
   {
@@ -20,22 +21,34 @@ const administrators : Administrator[] = [
 @Injectable()
 export class AdministratorsService {
 
+  @ApiCreatedResponse({
+    description: 'The administrators have been successfully found.'
+  })
   public getAll(): Administrator[] {
     return administrators;
   }
 
+  @ApiCreatedResponse({
+    description: 'The administrator has been successfully found.'
+  })
   public findOne(id: number) {
     return administrators[id];
   }
 
-  public create(createAdministratorDto: CreateAdministratorDto): Administrator {
+  @ApiCreatedResponse({
+    description: 'The administrator has been successfully created.'
+  })
+  public async create(createAdministratorDto: CreateAdministratorDto): Promise<Administrator> {
     console.log("Données reçues :", createAdministratorDto);
     const administrator = new Administrator(administrators.length, createAdministratorDto.username, createAdministratorDto.password);
     administrators.push(administrator);
     return administrator;
   }
 
-  public update(id: number, updateAdministratorDto: UpdateAdministratorDto): Administrator {
+  @ApiCreatedResponse({
+    description: 'The administrator has been successfully updated.'
+  })
+  public async update(id: number, updateAdministratorDto: UpdateAdministratorDto): Promise<Administrator> {
         console.log("Données reçues :", updateAdministratorDto);
         console.log(updateAdministratorDto.username);
         console.log(updateAdministratorDto.password);
@@ -59,7 +72,10 @@ export class AdministratorsService {
         return administrator;
   }
 
-  public remove(id: number): Administrator {
+  @ApiCreatedResponse({
+    description: 'The administrator has been successfully removed.'
+  })
+  public async remove(id: number): Promise<Administrator> {
         // Rechercher l'utilisateur par ID
         const administrator = administrators.find(a => a.idAdministrator === id);
         // Si l'administrateur n'existe pas, lancer une erreur 404
