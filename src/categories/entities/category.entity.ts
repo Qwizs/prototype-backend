@@ -1,10 +1,10 @@
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity()
-export class Answer {
+export class Category {
   @PrimaryGeneratedColumn()
-  idAnswer: number;
+  idCategory: number;
 
   @Column()
-  value: string;
+  name: string;
 }
