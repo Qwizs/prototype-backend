@@ -113,4 +113,6 @@ export class AdministratorsService {
     // Retourner l'administrateur supprimé
     return administrators;
   }
+
+
 }

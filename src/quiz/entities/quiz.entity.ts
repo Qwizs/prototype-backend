@@ -1,4 +1,5 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { Category } from '../../categories/entities/category.entity';
 
 @Entity()
 export class Quiz {
@@ -7,7 +8,8 @@ export class Quiz {
     @PrimaryGeneratedColumn()
     public idQuiz: number;  // La clé primaire est générée automatiquement
 
-    //@OneToMany(() => number, post => post.user)
+    @ManyToOne(() => Category)
+    @JoinColumn({ name: 'idCategory' })  // Spécifie le nom de la colonne de clé étrangère
     public idCategory: number;
 
     @Column()

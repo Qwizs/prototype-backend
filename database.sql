@@ -45,3 +45,15 @@ CREATE TABLE IF NOT EXISTS Category (
 
 -- Vérification des données insérées
 SELECT * FROM Category;
+
+
+-- Création de la table Quiz
+CREATE TABLE IF NOT EXISTS Quiz (
+    idQuiz SERIAL PRIMARY KEY,
+    idCategory INTEGER,
+    name VARCHAR(50),
+    FOREIGN KEY (idCategory) REFERENCES Category(idCategory)
+);
+
+-- Vérification des données insérées
+SELECT * FROM Quiz;
