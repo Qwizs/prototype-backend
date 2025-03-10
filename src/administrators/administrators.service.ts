@@ -7,18 +7,6 @@ import { PassThrough } from 'stream';
 import { ApiCreatedResponse } from '@nestjs/swagger';
 import { Admin, Repository } from 'typeorm';
 
-// const administrators : Administrator[] = [
-//   {
-//     idAdministrator: 0,
-//     username: 'jdoe',
-//     password: 'mdpJ'
-//   },
-//   {
-//     idAdministrator: 1,
-//     username: 'nicki48',
-//     password: 'mdpN'
-//   }
-// ]
 
 @Injectable()
 export class AdministratorsService {

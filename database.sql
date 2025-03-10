@@ -33,6 +33,12 @@ CREATE TABLE IF NOT EXISTS Administrator (
     password VARCHAR(255) NOT NULL
 );
 
+-- Création de la table Administrator-Quiz
+CREATE TABLE IF NOT EXISTS Administrator-Quiz (
+    idAdministrator SERIAL PRIMARY KEY,
+    idQuiz SERIAL PRIMARY KEY
+);
+
 -- Insertion d'un administrateur exemple
 
 
