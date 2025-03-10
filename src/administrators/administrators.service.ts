@@ -18,7 +18,7 @@ export class AdministratorsService {
   @ApiCreatedResponse({
     description: 'The administrators have been successfully found.'
   })
-  public getAll(): Promise<Administrator[]> {
+  public async getAll(): Promise<Administrator[]> {
     return this.administratorRepository.find();
   }
 
@@ -95,7 +95,7 @@ export class AdministratorsService {
   }
 
   @ApiCreatedResponse({
-    description: 'The administrator has been successfully removed.'
+    description: 'The administrators have been successfully removed.'
   })
   public async removeAll(): Promise<Administrator[]> {
 
@@ -112,6 +112,5 @@ export class AdministratorsService {
     
     // Retourner l'administrateur supprimé
     return administrators;
-
   }
 }
