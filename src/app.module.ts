@@ -6,6 +6,8 @@ import { AppService } from './app.service';
 import { DemoModule } from './demo/demo.module';
 import { QuestionsModule } from './questions/questions.module';
 import { CategoriesModule } from './categories/categories.module';
+import { Media } from './medias/entities/media.entity';
+import { MediasModule } from './medias/medias.module';
 
 @Module({
   imports: [
@@ -24,6 +26,7 @@ import { CategoriesModule } from './categories/categories.module';
     QuestionsModule,
     AnswersModule,
     CategoriesModule,
+    MediasModule
   ],
   controllers: [AppController],
   providers: [AppService],
