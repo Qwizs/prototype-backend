@@ -47,10 +47,10 @@ export class QuizService {
     description: 'The quiz has been successfully updated.'
   })  
   public async update(id: number, name?: string): Promise<Quiz> {
-    // On recherche l'administrateur par ID
+    // On recherche le quiz par ID
     const quiz = await this.quizRepository.findOneBy({idQuiz: id});
 
-    // Si l'administrateur n'est pas trouvé, on lève une exception
+    // Si le quiz n'est pas trouvé, on lève une exception
     if (!quiz) {
       throw new NotFoundException(`Quiz with id ${id} not found`);
     }
@@ -60,7 +60,7 @@ export class QuizService {
       quiz.name = name;
     }
 
-    // Retourner l'administrateur mis à jour
+    // Retourner le quiz mis à jour
     return this.quizRepository.save(quiz);
   }
 
