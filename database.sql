@@ -29,7 +29,7 @@ SET row_security = off;
 -- Création de la table Administrator
 CREATE TABLE IF NOT EXISTS Administrator (
     idAdministrator SERIAL PRIMARY KEY,
-    username VARCHAR(50) ,
+    username VARCHAR(50),
     password VARCHAR(255) NOT NULL
 );
 
@@ -57,3 +57,13 @@ CREATE TABLE IF NOT EXISTS Quiz (
 
 -- Vérification des données insérées
 SELECT * FROM Quiz;
+
+-- Création de la table Media
+CREATE TABLE IF NOT EXISTS Media (
+    idMedia SERIAL PRIMARY KEY,
+    type VARCHAR(50),
+    content VARCHAR(100)
+);
+
+-- Vérification des données insérées
+SELECT * FROM Media;
