@@ -4,6 +4,7 @@ import { UpdateMediaDto } from './dto/update-media.dto';
 import { Media } from './entities/media.entity';
 import { Repository } from 'typeorm';
 import { ApiCreatedResponse } from '@nestjs/swagger';
+import { InjectRepository } from '@nestjs/typeorm';
 
 @Injectable()
 export class MediasService {
@@ -12,16 +13,16 @@ export class MediasService {
     @InjectRepository(Media) private readonly mediaRepository: Repository<Media>,
   ) {}
 
-    @ApiCreatedResponse({
-      description: 'The media have been successfully found.'
-    })
+  @ApiCreatedResponse({
+    description: 'The media have been successfully found.'
+  })
   public async findAll(): Promise<Media[]> {
     return this.mediaRepository.find();
   }
 
-    @ApiCreatedResponse({
-      description: 'The media has been successfully found.'
-    })
+  @ApiCreatedResponse({
+    description: 'The media has been successfully found.'
+  })
   public async findOne(id: number): Promise<Media> {
     const media = await this.mediaRepository.findOneBy({idMedia: id});
     if (!media) {
@@ -77,11 +78,31 @@ export class MediasService {
     await this.mediaRepository.delete({idMedia: id});
 
     // Réinitialiser la séquence de la base de données SQLite pour l'auto-incrément
-    // await this.mediaRepository.query(
-    //   `SELECT setval(pg_get_serial_sequence('quiz', 'idQuiz'), 1, false)`
-    // );    
+    await this.mediaRepository.query(
+      `SELECT setval(pg_get_serial_sequence('media', 'idMedia'), 1, false)`
+    );    
 
     // Retourner le quiz supprimé
     return media;
   }
+
+    @ApiCreatedResponse({
+      description: 'The medias have been successfully removed.'
+    })
+    public async removeAll(): Promise<Media[]> {
+  
+      const medias = await this.mediaRepository.find();
+      
+      if (medias.length === 0) {
+        throw new NotFoundException(`Media list is empty`);
+      }
+  
+      // Réinitialiser la séquence de la base de données SQLite pour l'auto-incrément
+      await this.mediaRepository.query(
+        `TRUNCATE TABLE media RESTART IDENTITY CASCADE;`
+      );    
+      
+      // Retourner les medias supprimés
+      return medias;
+    }  
 }

@@ -3,7 +3,9 @@ import { CreateMediaDto } from './dto/create-media.dto';
 import { UpdateMediaDto } from './dto/update-media.dto';
 import { MediasService } from './medias.service';
 import { Media } from './entities/media.entity';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('medias')
 @Controller('medias')
 export class MediasController {
   constructor(private readonly mediasService: MediasService) {}
@@ -32,5 +34,10 @@ export class MediasController {
   public async remove(@Param('id') id: string): Promise<Media> {
     return this.mediasService.remove(+id);
   }
+
+  @Delete()
+  public async removeAll(): Promise<Media[]> {
+    return this.mediasService.removeAll();
+  }  
 }
 

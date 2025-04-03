@@ -7,7 +7,7 @@ export class CreateMediaDto {
   @IsIn(['image', 'video', 'audio'])
   @ApiProperty({
     description: 'The type of the media',
-    example: "image",
+    example: "audio",
     type: String,
   })
   type: string;
@@ -16,7 +16,7 @@ export class CreateMediaDto {
   @IsString()
   @ApiProperty({
     description: 'The content of the media',
-    example: "La Joconde",
+    example: "Chemin1Audio1",
     type: String,
   })  
   content: string;
