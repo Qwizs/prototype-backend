@@ -84,9 +84,9 @@ export class AdministratorsService {
     await this.administratorRepository.delete({idAdministrator: id});
 
     // Réinitialiser la séquence de la base de données SQLite pour l'auto-incrément
-    await this.administratorRepository.query(
-      `SELECT setval(pg_get_serial_sequence('administrator', 'idAdministrator'), 1, false)`
-    );    
+    // await this.administratorRepository.query(
+    //   `SELECT setval(pg_get_serial_sequence('administrator', 'idAdministrator'), 1, false)`
+    // );    
     
 
     // Retourner l'administrateur supprimé
