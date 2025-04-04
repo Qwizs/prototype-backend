@@ -78,9 +78,9 @@ export class MediasService {
     await this.mediaRepository.delete({idMedia: id});
 
     // Réinitialiser la séquence de la base de données SQLite pour l'auto-incrément
-    await this.mediaRepository.query(
-      `SELECT setval(pg_get_serial_sequence('media', 'idMedia'), 1, false)`
-    );    
+    // await this.mediaRepository.query(
+    //   `SELECT setval(pg_get_serial_sequence('media', 'idMedia'), 1, false)`
+    // );    
 
     // Retourner le quiz supprimé
     return media;

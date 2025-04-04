@@ -77,9 +77,9 @@ export class QuizService {
     await this.quizRepository.delete({idQuiz: id});
 
     // Réinitialiser la séquence de la base de données SQLite pour l'auto-incrément
-    await this.quizRepository.query(
-      `SELECT setval(pg_get_serial_sequence('quiz', 'idQuiz'), 1, false)`
-    );    
+    // await this.quizRepository.query(
+    //   `SELECT setval(pg_get_serial_sequence('quiz', 'idQuiz'), 1, false)`
+    // );    
 
     // Retourner le quiz supprimé
     return quiz;

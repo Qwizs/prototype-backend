@@ -77,9 +77,9 @@ export class CategoriesService {
     await this.categoryRepository.delete({idCategory: id});
 
     // Réinitialiser la séquence de la base de données SQLite pour l'auto-incrément
-    await this.categoryRepository.query(
-      `SELECT setval(pg_get_serial_sequence('category', 'idCategory'), 1, false)`
-    );    
+    // await this.categoryRepository.query(
+    //   `SELECT setval(pg_get_serial_sequence('category', 'idCategory'), 1, false)`
+    // );    
     
 
     // Retourner l'administrateur supprimé
