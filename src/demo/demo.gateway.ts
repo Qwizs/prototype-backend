@@ -9,7 +9,8 @@ import { Server, Socket } from 'socket.io';
 
 @WebSocketGateway({
   cors: {
-    origin: '*',
+    origin: ['http://172.27.192.1:3000', 'http://172.20.10.2:3000'],
+    credentials: true,
   },
 })
 export class DemoGateway {
@@ -18,6 +19,9 @@ export class DemoGateway {
 
   private participants: { [quizCode: string]: string[] } = {};
   private scores: { [quizCode: string]: { [user: string]: number } } = {};
+  private userResponses: { [room: string]: Set<string> } = {};
+  private answers: { [room: string]: { [user: string]: string } } = {};
+
   private quizData = {
     questions: [
       {
@@ -35,12 +39,9 @@ export class DemoGateway {
         options: ['Paris', 'London', 'Berlin', 'Madrid'],
         correctOption: 'Madrid',
       },
-      // Ajoutez d'autres questions ici
     ],
     currentQuestionIndex: 0,
   };
-
-  private userResponses: { [room: string]: Set<string> } = {};
 
   @SubscribeMessage('generateQuizCode')
   handleGenerateQuizCode(@ConnectedSocket() socket: Socket) {
@@ -56,46 +57,71 @@ export class DemoGateway {
     const { user, quizCode } = data;
     socket.join(quizCode);
 
-    // Ajouter l'utilisateur à la liste des participants
+    // Initialiser la salle si besoin
     if (!this.participants[quizCode]) {
       this.participants[quizCode] = [];
     }
-    this.participants[quizCode].push(user);
 
-    // Initialiser le score de l'utilisateur
+    // ✅ Empêcher les doublons
+    if (!this.participants[quizCode].includes(user)) {
+      this.participants[quizCode].push(user);
+    }
+
+    // Initialiser les scores
     if (!this.scores[quizCode]) {
       this.scores[quizCode] = {};
     }
-    this.scores[quizCode][user] = 0;
+    if (!this.scores[quizCode][user]) {
+      this.scores[quizCode][user] = 0;
+    }
 
-    // Envoyer la liste complète des participants au nouvel utilisateur
+    // Envoyer la liste mise à jour au nouvel utilisateur
     socket.emit('currentParticipants', this.participants[quizCode]);
 
-    // Informer les autres utilisateurs qu'un nouvel utilisateur a rejoint
+    // Informer les autres joueurs (optionnel, pour affichage live)
     socket.to(quizCode).emit('userJoined', user);
   }
 
   @SubscribeMessage('startQuiz')
-  handleStartQuiz(@MessageBody() quizCode: string) {
-    this.quizData.currentQuestionIndex = 0; // Reset the question index
+  handleStartQuiz(
+    @MessageBody() quizCode: string,
+    @ConnectedSocket() socket: Socket,
+  ) {
+    const participants = this.participants[quizCode] || [];
+
+    if (participants.length < 2) {
+      socket.emit(
+        'exception',
+        'Au moins deux joueurs sont requis pour démarrer le quiz.',
+      );
+      return;
+    }
+
+    this.quizData.currentQuestionIndex = 0; // reset
+    this.userResponses[quizCode] = new Set();
+    this.answers[quizCode] = {};
+
     this.server.to(quizCode).emit('startQuiz');
-    // Emit the first question
     this.sendNextQuestion(quizCode);
   }
-
   @SubscribeMessage('joinQuizRoom')
   handleJoinQuizRoom(
     @ConnectedSocket() socket: Socket,
     @MessageBody() data: { user: string; room: string },
   ) {
-    const { room } = data;
+    const { user, room } = data;
     socket.join(room);
-    if (!this.userResponses[room]) {
-      this.userResponses[room] = new Set();
-    }
 
-    // Send the first question when a user joins
-    this.sendNextQuestion(room);
+    if (!this.userResponses[room]) this.userResponses[room] = new Set();
+    if (!this.answers[room]) this.answers[room] = {};
+    if (!this.scores[room]) this.scores[room] = {};
+    if (!this.scores[room][user]) this.scores[room][user] = 0;
+
+    if (this.quizData.currentQuestionIndex < this.quizData.questions.length) {
+      const question =
+        this.quizData.questions[this.quizData.currentQuestionIndex];
+      this.server.to(room).emit('newQuestion', question);
+    }
   }
 
   @SubscribeMessage('submitAnswer')
@@ -103,19 +129,37 @@ export class DemoGateway {
     @MessageBody() data: { user: string; room: string; answer: string },
   ) {
     const { room, user, answer } = data;
+
+    this.answers[room][user] = answer;
     this.userResponses[room].add(user);
 
-    if (
-      this.userResponses[room].size ===
-      this.server.sockets.adapter.rooms.get(room)?.size
-    ) {
-      const question =
-        this.quizData.questions[this.quizData.currentQuestionIndex - 1];
-      if (answer === question.correctOption) {
-        this.scores[room][user] += 1;
-      }
+    const expectedUserCount =
+      this.server.sockets.adapter.rooms.get(room)?.size || 0;
+
+    if (this.userResponses[room].size === expectedUserCount) {
+      const currentQuestion =
+        this.quizData.questions[this.quizData.currentQuestionIndex];
+
+      Object.entries(this.answers[room]).forEach(([u, ans]) => {
+        if (ans === currentQuestion.correctOption) {
+          this.scores[room][u] += 1;
+        }
+      });
+
       this.server.to(room).emit('allUsersResponded');
-      this.revealAnswer(room);
+      this.server.to(room).emit('revealAnswer', {
+        correctOption: currentQuestion.correctOption,
+      });
+
+      this.userResponses[room].clear();
+      this.answers[room] = {};
+
+      // Incrément ici, une fois qu'on a utilisé la question courante
+      this.quizData.currentQuestionIndex++;
+
+      setTimeout(() => {
+        this.sendNextQuestion(room);
+      }, 3000);
     }
   }
 
@@ -124,9 +168,7 @@ export class DemoGateway {
       const question =
         this.quizData.questions[this.quizData.currentQuestionIndex];
       this.server.to(room).emit('newQuestion', question);
-      this.quizData.currentQuestionIndex++;
     } else {
-      // Send final scores
       const finalScores = this.scores[room];
       this.server.to(room).emit('quizEnded', finalScores);
     }
@@ -134,11 +176,19 @@ export class DemoGateway {
 
   private revealAnswer(room: string) {
     const question =
-      this.quizData.questions[this.quizData.currentQuestionIndex - 1];
-    this.server
-      .to(room)
-      .emit('revealAnswer', { correctOption: question.correctOption });
+      this.quizData.questions[this.quizData.currentQuestionIndex];
+
+    this.server.to(room).emit('revealAnswer', {
+      correctOption: question.correctOption,
+    });
+
     this.userResponses[room].clear();
-    this.sendNextQuestion(room);
+    this.answers[room] = {};
+
+    this.quizData.currentQuestionIndex++; // 👈 incrément ici
+
+    setTimeout(() => {
+      this.sendNextQuestion(room);
+    }, 3000);
   }
 }
