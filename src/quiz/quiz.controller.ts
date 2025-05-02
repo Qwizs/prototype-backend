@@ -21,13 +21,13 @@ export class QuizController {
   }
 
   @Post()
-  public async create(@Body() createQuizDto: CreateQuizDto) {
-    return this.quizService.create(createQuizDto.name);
+  public async create(@Body() createQuizDto: CreateQuizDto): Promise<Quiz> {
+    return this.quizService.create(createQuizDto.name, +createQuizDto.idCategory);
   }
 
   @Put(':id')
   public async update(@Param('id') id: number, @Body() updateQuizDto: UpdateQuizDto): Promise<Quiz> {
-    return this.quizService.update(+id, updateQuizDto.name);
+    return this.quizService.update(+id, updateQuizDto.name, +updateQuizDto.idCategory);
   }
 
   @Delete(':id')

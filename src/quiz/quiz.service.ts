@@ -5,12 +5,14 @@ import { Quiz } from './entities/quiz.entity';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ApiCreatedResponse } from '@nestjs/swagger';
+import { Category } from '../categories/entities/category.entity';
 
 @Injectable()
 export class QuizService {
 
   constructor(
     @InjectRepository(Quiz) private readonly quizRepository: Repository<Quiz>,
+    @InjectRepository(Category) private readonly categoryRepository: Repository<Category>
   ) {}
 
   @ApiCreatedResponse({
@@ -34,9 +36,15 @@ export class QuizService {
   @ApiCreatedResponse({
     description: 'The quiz has been successfully created.'
   })  
-  public async create(name: string): Promise<Quiz> {
+  public async create(name: string, idC: number): Promise<Quiz> {
+
+    const category = await this.categoryRepository.findOneBy({idCategory: idC});
+    if (!category) {
+      throw new NotFoundException(`Category with id ${idC} not found`);
+    }
     // Créer une nouvelle entité quiz
     const newQuiz = this.quizRepository.create({
+      idCategory: idC,
       name
     });        
 
@@ -46,7 +54,13 @@ export class QuizService {
   @ApiCreatedResponse({
     description: 'The quiz has been successfully updated.'
   })  
-  public async update(id: number, name?: string): Promise<Quiz> {
+  public async update(id: number, name?: string, idCategory?: number): Promise<Quiz> {
+    // On vérifie que l'ID de la catégorie est valide
+    const category = await this.categoryRepository.findOneBy({idCategory: idCategory});
+    if (!category) {
+      throw new NotFoundException(`Category with id ${idCategory} not found`);
+    }
+
     // On recherche le quiz par ID
     const quiz = await this.quizRepository.findOneBy({idQuiz: id});
 
@@ -58,6 +72,10 @@ export class QuizService {
     // Mise à jour des champs uniquement si des valeurs sont fournies
     if (name !== undefined) {
       quiz.name = name;
+    }
+
+    if (idCategory !== undefined) {
+      quiz.idCategory = idCategory;
     }
 
     // Retourner le quiz mis à jour

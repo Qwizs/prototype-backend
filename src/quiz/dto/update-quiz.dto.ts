@@ -1,6 +1,6 @@
 import { PartialType } from '@nestjs/mapped-types';
 import { CreateQuizDto } from './create-quiz.dto';
-import { IsOptional, IsString, MinLength, MaxLength } from 'class-validator';
+import { IsOptional, IsString, MinLength, MaxLength, IsInt } from 'class-validator';
 import { ApiProperty } from "@nestjs/swagger";
 
 export class UpdateQuizDto extends PartialType(CreateQuizDto) {
@@ -13,4 +13,13 @@ export class UpdateQuizDto extends PartialType(CreateQuizDto) {
         type: String,
     })
     name: string;
+
+    @IsOptional()
+    @IsInt()
+    @ApiProperty({
+        description: 'The id of the category',
+        example: "1",
+        type: Number,
+    })
+    idCategory: number;
 }
