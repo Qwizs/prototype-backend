@@ -21,6 +21,11 @@ export class AdministratorsController {
     return this.administratorsService.findOne(+id);
   }
 
+  @Get(':username/:password')
+  public async exists(@Param('username') name: string, @Param('password') pw: string): Promise<Boolean> {
+    return this.administratorsService.exists(name, pw);
+  }
+
   @Post()
   public async create(@Body() createAdministratorDto: CreateAdministratorDto): Promise<Administrator>  {
     return this.administratorsService.create(createAdministratorDto.username, createAdministratorDto.password);

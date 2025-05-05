@@ -34,6 +34,17 @@ export class AdministratorsService {
   }
 
   @ApiCreatedResponse({
+    description: 'The administrator has been successfully found.'
+  })
+  public async exists(name: string, pw: string): Promise<Boolean> {
+    const administrator = await this.administratorRepository.findOneBy({username: name, password: pw});
+    if (!administrator) {
+        throw new NotFoundException(`Administrator with id ${name} and ${pw} not found`);
+    }
+    return true;
+  }
+
+  @ApiCreatedResponse({
     description: 'The administrator has been successfully created.'
   })
   public async create(username: string, password: string): Promise<Administrator> {
