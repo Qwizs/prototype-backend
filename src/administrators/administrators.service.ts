@@ -48,6 +48,10 @@ export class AdministratorsService {
     description: 'The administrator has been successfully created.'
   })
   public async create(username: string, password: string): Promise<Administrator> {
+    const lastAdmin = await this.administratorRepository.findOneBy({username: username});
+    if (lastAdmin) {
+      throw new NotFoundException(`Administrator with id ${username} already exists`);
+    }
     // Créer une nouvelle entité administrator
     const newAdministrator = this.administratorRepository.create({
       username,
