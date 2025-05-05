@@ -16,7 +16,7 @@ export class AdministratorsService {
   ) {}
 
   @ApiCreatedResponse({
-    description: 'The administrators have been successfully found.'
+    description: 'The administrator have been successfully found.'
   })
   public async getAll(): Promise<Administrator[]> {
     return this.administratorRepository.find();

@@ -67,3 +67,12 @@ CREATE TABLE IF NOT EXISTS Media (
 
 -- Vérification des données insérées
 SELECT * FROM Media;
+
+-- Création de la table AdministratorQuiz
+CREATE TABLE IF NOT EXISTS administrator_quiz (
+    idAdministrator INTEGER,
+    idQuiz INTEGER
+);
+
+-- Vérification des données insérées
+SELECT * FROM administrator_quiz;

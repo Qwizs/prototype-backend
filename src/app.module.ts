@@ -11,6 +11,8 @@ import { CategoriesModule } from './categories/categories.module';
 import { Category } from './categories/entities/category.entity';
 import { MediasModule } from './medias/medias.module';
 import { Media } from './medias/entities/media.entity';
+import { AdministratorQuizModule } from './administrator-quiz/administrator-quiz.module';
+import { AdministratorQuiz } from './administrator-quiz/entities/administrator-quiz.entity';
 
 @Module({
   imports: [
@@ -20,13 +22,17 @@ import { Media } from './medias/entities/media.entity';
       port: 5432,
       password: 'simform',
       username: 'postgres',
-      entities: [Administrator, Quiz, Category, Media],
+      entities: [Administrator, Quiz, Category, Media, AdministratorQuiz],
       database: 'database',
       synchronize: true,
       logging: true,
     }),
     DemoModule, 
-    AdministratorsModule, QuizModule, CategoriesModule, MediasModule
+    AdministratorsModule, 
+    QuizModule, 
+    CategoriesModule, 
+    MediasModule, 
+    AdministratorQuizModule,
   ],
   controllers: [AppController],
   providers: [AppService],
