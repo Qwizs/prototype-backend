@@ -21,6 +21,11 @@ export class AdministratorsController {
     return this.administratorsService.findOne(+id);
   }
 
+  @Get('findId/:username/:password')
+  public async findId(@Param('username') name: string, @Param('password') pw: string): Promise<number> {
+    return this.administratorsService.findId(name, pw);
+  }
+
   @Get(':username/:password')
   public async exists(@Param('username') name: string, @Param('password') pw: string): Promise<Boolean> {
     return this.administratorsService.exists(name, pw);

@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { Administrator } from './entities/administrator.entity';
 import { CreateAdministratorDto } from './dto/create-administrator.dto';
 import { UpdateAdministratorDto } from './dto/update-administrator.dto';
@@ -32,6 +32,18 @@ export class AdministratorsService {
     }
     return administrator;
   }
+
+  @ApiCreatedResponse({
+    description: 'The id has been successfully found.'
+  })
+  public async findId(name: string, pw: string): Promise<number> {
+    const administrator = await this.administratorRepository.findOneBy({username: name, password: pw});
+    if (!administrator) {
+        throw new NotFoundException(`Administrator with id ${name} and ${pw} not found`);
+    }
+    return administrator.idAdministrator;
+  }
+  
 
   @ApiCreatedResponse({
     description: 'The administrator has been successfully found.'

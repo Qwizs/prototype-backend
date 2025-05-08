@@ -55,12 +55,6 @@ export class QuizService {
     description: 'The quiz has been successfully updated.'
   })  
   public async update(id: number, name?: string, idCategory?: number): Promise<Quiz> {
-    // On vérifie que l'ID de la catégorie est valide
-    const category = await this.categoryRepository.findOneBy({idCategory: idCategory});
-    if (!category) {
-      throw new NotFoundException(`Category with id ${idCategory} not found`);
-    }
-
     // On recherche le quiz par ID
     const quiz = await this.quizRepository.findOneBy({idQuiz: id});
 
@@ -74,7 +68,12 @@ export class QuizService {
       quiz.name = name;
     }
 
-    if (idCategory !== undefined) {
+    if (typeof idCategory === 'number' && !isNaN(idCategory)) {
+      // On vérifie que l'ID de la catégorie est valide
+      const category = await this.categoryRepository.findOneBy({idCategory: idCategory});
+      if (!category) {
+        throw new NotFoundException(`Category with id ${idCategory} not found`);
+      }
       quiz.idCategory = idCategory;
     }
 

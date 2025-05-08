@@ -21,6 +21,11 @@ export class AdministratorQuizController {
     return this.administratorQuizService.findOne(+idA, +idQ);
   }
 
+  @Get(':idAdministrator/')
+  public async findOneByAdmin(@Param('idAdministrator') idA: number): Promise<AdministratorQuiz[]> {
+    return this.administratorQuizService.findOneByAdmin(+idA);
+  }
+
   @Post()
   public async create(@Body() createAdministratorQuizDto: CreateAdministratorQuizDto): Promise<AdministratorQuiz> {
     return this.administratorQuizService.create(createAdministratorQuizDto.idAdministrator, createAdministratorQuizDto.idQuiz);

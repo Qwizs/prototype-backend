@@ -36,21 +36,35 @@ export class AdministratorQuizService {
   }
 
   @ApiCreatedResponse({
+    description: 'The quizzes of the administrator has been successfully found.'
+  })
+  public async findOneByAdmin(idA: number): Promise<AdministratorQuiz[]> {
+    const administrator_quiz = await this.administratorQuizRepository.findBy({idAdministrator: idA});
+    if (!administrator_quiz) {
+        throw new NotFoundException(`AdministratorQuiz with id ${idA} not found`);
+    }
+    return administrator_quiz;
+  }
+
+  @ApiCreatedResponse({
     description: 'The administrator-quiz has been successfully created.'
   })
   public async create(idAdministrator: number, idQuiz: number): Promise<AdministratorQuiz> {
-    // Créer une nouvelle entité administrator-quiz
-    if (!this.administratorsService.findOne(idAdministrator) || !this.quizService.findOne(idQuiz)){
-      throw new NotFoundException(`AdministratorQuiz with id ${idAdministrator} and ${idQuiz} not found`); 
-    }  
-
+    try {
+      await this.administratorsService.findOne(idAdministrator);
+      await this.quizService.findOne(idQuiz);
+    } catch (error) {
+      throw new NotFoundException(`AdministratorQuiz with id ${idAdministrator} and ${idQuiz} not found`);
+    }
+  
     const newAdministratorQuiz = this.administratorQuizRepository.create({
       idAdministrator,
       idQuiz,
-    });   
-
+    });
+  
     return this.administratorQuizRepository.save(newAdministratorQuiz);
   }
+  
 
   // @ApiCreatedResponse({
   //   description: 'The administrator-quiz has been successfully updated.'

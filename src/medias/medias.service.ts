@@ -61,6 +61,10 @@ export class MediasService {
       media.type = type;
     }
 
+    if (content !== undefined) {
+      media.content = content;
+    }
+
     // Retourner le media mis à jour
     return this.mediaRepository.save(media);
   }
