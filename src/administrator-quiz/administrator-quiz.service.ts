@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateAdministratorQuizDto } from './dto/create-administrator-quiz.dto';
 import { UpdateAdministratorQuizDto } from './dto/update-administrator-quiz.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -117,23 +117,55 @@ export class AdministratorQuizService {
     return administrator_quiz;
   }
 
-    @ApiCreatedResponse({
-      description: 'The administrator-quiz have been successfully removed.'
-    })
-    public async removeAll(): Promise<AdministratorQuiz[]> {
-  
-      const administratorQuiz = await this.administratorQuizRepository.find();
-      
-      if (administratorQuiz.length === 0) {
-        throw new NotFoundException(`AdministratorQuiz list is empty`);
-      }
-  
-      // Réinitialiser la séquence de la base de données SQLite pour l'auto-incrément
-      await this.administratorQuizRepository.query(
-        `TRUNCATE TABLE "administrator_quiz" RESTART IDENTITY CASCADE;`
-      );    
-      
-      // Retourner l'administrateur-quiz supprimé
-      return administratorQuiz;
+  @ApiCreatedResponse({
+    description: 'The administrator-quiz have been successfully removed.'
+  })
+  public async removeAll(): Promise<AdministratorQuiz[]> {
+
+    const administratorQuiz = await this.administratorQuizRepository.find();
+    
+    if (administratorQuiz.length === 0) {
+      throw new NotFoundException(`AdministratorQuiz list is empty`);
     }
+
+    // Réinitialiser la séquence de la base de données SQLite pour l'auto-incrément
+    await this.administratorQuizRepository.query(
+      `TRUNCATE TABLE "administrator_quiz" RESTART IDENTITY CASCADE;`
+    );    
+    
+    // Retourner l'administrateur-quiz supprimé
+    return administratorQuiz;
+  }
+
+  @ApiCreatedResponse({
+    description: 'All the quizzes have been successfully removed for this administrator.'
+  })
+  public async removeAllByAdmin(idA: number): Promise<AdministratorQuiz[]> {
+    console.log("idA", idA);
+    
+    const administratorQuizService = new AdministratorQuizService(
+      this.administratorQuizRepository,
+      this.administratorsService,
+      this.quizService,
+    );
+    
+    // Récupérer tous les quiz associés à l'administrateur
+    const administratorQuiz = await administratorQuizService.findOneByAdmin(idA);
+    
+    if (administratorQuiz.length === 0) {
+      throw new NotFoundException(`No quizzes found for the administrator with id ${idA}`);
+    }
+  
+    // Supprimer chaque quiz un par un
+    for (const quiz of administratorQuiz) {
+      console.log(quiz);
+      await this.remove(idA, quiz.idQuiz); // Appeler la méthode remove pour chaque quiz
+      await this.quizService.remove(+quiz.idQuiz);
+    }
+    
+    // Retourner une réponse de succès
+    return administratorQuiz;
+  }
+  
+   
 }

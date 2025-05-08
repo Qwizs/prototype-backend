@@ -45,4 +45,9 @@ export class AdministratorQuizController {
   public async removeAll(): Promise<AdministratorQuiz[]> {
     return this.administratorQuizService.removeAll();
   }
+
+  @Delete('1/1/:idAdministrator')
+  public async removeAllByAdmin(@Param('idAdministrator') idA: number): Promise<AdministratorQuiz[]> {
+    return this.administratorQuizService.removeAllByAdmin(+idA);
+  }
 }
