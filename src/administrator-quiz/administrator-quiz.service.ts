@@ -66,34 +66,34 @@ export class AdministratorQuizService {
   }
   
 
-  // @ApiCreatedResponse({
-  //   description: 'The administrator-quiz has been successfully updated.'
-  // })
-  // public async update(idA: number, idQ: number): Promise<AdministratorQuiz> {
+  @ApiCreatedResponse({
+    description: 'The administrator-quiz has been successfully updated.'
+  })
+  public async update(idA: number, idQ: number): Promise<AdministratorQuiz> {
 
-  //   if (!this.administratorsService.findOne(idA) || !this.quizService.findOne(idQ)){
-  //     throw new NotFoundException(`AdministratorQuiz with id ${idA} and ${idQ} not found`); 
-  //   }  
+    if (!this.administratorsService.findOne(idA) || !this.quizService.findOne(idQ)){
+      throw new NotFoundException(`AdministratorQuiz with id ${idA} and ${idQ} not found`); 
+    }  
 
-  //   // On recherche l'administrateur-quiz par ID
-  //   const administratorQuiz = await this.administratorQuizRepository.findOneBy({idAdministrator: idA, idQuiz: idQ});
+    // On recherche l'administrateur-quiz par ID
+    const administratorQuiz = await this.administratorQuizRepository.findOneBy({idAdministrator: idA, idQuiz: idQ});
 
-  //   // Si l'administrateur-quiz n'est pas trouvé, on lève une exception
-  //   if (!administratorQuiz) {
-  //     throw new NotFoundException(`Administrator with id ${idA} and ${idQ} not found`);
-  //   }
+    // Si l'administrateur-quiz n'est pas trouvé, on lève une exception
+    if (!administratorQuiz) {
+      throw new NotFoundException(`Administrator with id ${idA} and ${idQ} not found`);
+    }
 
-  //   // Mise à jour des champs uniquement si des valeurs sont fournies
-  //   if (idA !== undefined) {
-  //     administratorQuiz.idAdministrator = idA;
-  //   }
-  //   if (idQ !== undefined) {
-  //     administratorQuiz.idQuiz = idQ;
-  //   }
+    // Mise à jour des champs uniquement si des valeurs sont fournies
+    if (idA !== undefined) {
+      administratorQuiz.idAdministrator = idA;
+    }
+    if (idQ !== undefined) {
+      administratorQuiz.idQuiz = idQ;
+    }
 
-  //   // Retourner l'administrateur mis à jour
-  //   return this.administratorQuizRepository.save(administratorQuiz);
-  // }
+    // Retourner l'administrateur mis à jour
+    return this.administratorQuizRepository.save(administratorQuiz);
+  }
 
   @ApiCreatedResponse({
     description: 'The administrator-quiz has been successfully removed.'

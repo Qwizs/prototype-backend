@@ -31,10 +31,10 @@ export class AdministratorQuizController {
     return this.administratorQuizService.create(createAdministratorQuizDto.idAdministrator, createAdministratorQuizDto.idQuiz);
   }
 
-  // @Put(':id')
-  // public async update(@Body() updateAdministratorQuizDto: UpdateAdministratorQuizDto): Promise<AdministratorQuiz> {
-  //   return this.administratorQuizService.update(updateAdministratorQuizDto.idAdministrator, updateAdministratorQuizDto.idQuiz);
-  // }
+  @Put('1/1/:idAdministrator/:idQuiz')
+  public async update(@Body() updateAdministratorQuizDto: UpdateAdministratorQuizDto): Promise<AdministratorQuiz> {
+    return this.administratorQuizService.update(updateAdministratorQuizDto.idAdministrator, updateAdministratorQuizDto.idQuiz);
+  }
 
   @Delete(':idAdministrator/:idQuiz')
   public async remove(@Param('idAdministrator') idA: number, @Param('idQuiz') idQ: number): Promise<AdministratorQuiz> {
