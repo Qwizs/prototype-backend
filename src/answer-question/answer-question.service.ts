@@ -15,15 +15,6 @@ export class AnswerQuestionService {
     private readonly answerService: AnswersService,
   ) {}
 
-  async create(
-    createAnswerQuestionDto: CreateAnswerQuestionDto,
-  ): Promise<AnswerQuestion> {
-    const answerQuestion = this.answerQuestionRepository.create(
-      createAnswerQuestionDto,
-    );
-    return await this.answerQuestionRepository.save(answerQuestion);
-  }
-
   async findAll(): Promise<AnswerQuestion[]> {
     return await this.answerQuestionRepository.find();
   }
@@ -32,6 +23,15 @@ export class AnswerQuestionService {
     return await this.answerQuestionRepository.findOne({
       where: { idQuestion, idAnswer },
     });
+  }
+
+  async create(
+    createAnswerQuestionDto: CreateAnswerQuestionDto,
+  ): Promise<AnswerQuestion> {
+    const answerQuestion = this.answerQuestionRepository.create(
+      createAnswerQuestionDto,
+    );
+    return await this.answerQuestionRepository.save(answerQuestion);
   }
 
   async findAnswer(idQuestion: number): Promise<Answer[]> {

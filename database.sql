@@ -108,3 +108,13 @@ CREATE TABLE IF NOT EXISTS answer_question (
 
 -- Vérification des données insérées
 SELECT * FROM answer_question;
+
+-- Création de la table QuizQuestion
+CREATE TABLE IF NOT EXISTS quiz_question (
+    idQuiz SERIAL PRIMARY KEY,
+    idQuestion INTEGER NOT NULL,
+    "order" INTEGER
+);
+
+-- Vérification des données insérées
+SELECT * FROM quiz_question;

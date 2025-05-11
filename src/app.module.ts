@@ -19,6 +19,8 @@ import { Answer } from './answers/entities/answer.entity';
 import { AnswersModule } from './answers/answers.module';
 import { AnswerQuestion } from './answer-question/entities/answer-question.entity';
 import { AnswerQuestionModule } from './answer-question/answer-question.module';
+import { QuizQuestionModule } from './quiz-question/quiz-question.module';
+import { QuizQuestion } from './quiz-question/entities/quiz-question.entity';
 
 @Module({
   imports: [
@@ -28,7 +30,7 @@ import { AnswerQuestionModule } from './answer-question/answer-question.module';
       port: 5432,
       password: 'simform',
       username: 'postgres',
-      entities: [Administrator, Quiz, Category, Media, AdministratorQuiz, Question, AnswerQuestion, Answer],
+      entities: [Administrator, Quiz, Category, Media, AdministratorQuiz, Question, AnswerQuestion, Answer, QuizQuestion],
       database: 'database',
       synchronize: true,
       logging: true,
@@ -41,7 +43,8 @@ import { AnswerQuestionModule } from './answer-question/answer-question.module';
     AdministratorQuizModule,
     QuestionsModule,
     AnswersModule,
-    AnswerQuestionModule
+    AnswerQuestionModule,
+    QuizQuestionModule
   ],
   controllers: [AppController],
   providers: [AppService],
