@@ -20,7 +20,7 @@ export class QuestionsController {
     return this.questionsService.create(createQuestionDto);
   }
 
-  @Get()
+  @Get('all')
   findAll() {
     return this.questionsService.findAll();
   }

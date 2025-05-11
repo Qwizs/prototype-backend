@@ -12,8 +12,9 @@ import { AdministratorsModule } from 'src/administrators/administrators.module';
 import { Category } from 'src/categories/entities/category.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([AdministratorQuiz, Administrator, Quiz, Category]), Administrator, Quiz, AdministratorsModule],
+  imports: [TypeOrmModule.forFeature([AdministratorQuiz, Administrator, Quiz, Category]), Administrator, Quiz, AdministratorsModule, AdministratorQuizModule],
   controllers: [AdministratorQuizController, AdministratorsController],
   providers: [AdministratorQuizService, AdministratorsService, QuizService],
+  exports: [AdministratorQuizService]
 })
 export class AdministratorQuizModule {}

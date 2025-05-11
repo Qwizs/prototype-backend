@@ -35,6 +35,7 @@ export class AnswerQuestionService {
   }
 
   async findAnswer(idQuestion: number): Promise<Answer[]> {
+    
     const answersId: AnswerQuestion[] =
       await this.answerQuestionRepository.find({
         where: { idQuestion: Equal(idQuestion) },

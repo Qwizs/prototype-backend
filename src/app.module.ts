@@ -13,6 +13,12 @@ import { MediasModule } from './medias/medias.module';
 import { Media } from './medias/entities/media.entity';
 import { AdministratorQuizModule } from './administrator-quiz/administrator-quiz.module';
 import { AdministratorQuiz } from './administrator-quiz/entities/administrator-quiz.entity';
+import { Question } from './questions/entities/question.entity';
+import { QuestionsModule } from './questions/questions.module';
+import { Answer } from './answers/entities/answer.entity';
+import { AnswersModule } from './answers/answers.module';
+import { AnswerQuestion } from './answer-question/entities/answer-question.entity';
+import { AnswerQuestionModule } from './answer-question/answer-question.module';
 
 @Module({
   imports: [
@@ -22,7 +28,7 @@ import { AdministratorQuiz } from './administrator-quiz/entities/administrator-q
       port: 5432,
       password: 'simform',
       username: 'postgres',
-      entities: [Administrator, Quiz, Category, Media, AdministratorQuiz],
+      entities: [Administrator, Quiz, Category, Media, AdministratorQuiz, Question, AnswerQuestion, Answer],
       database: 'database',
       synchronize: true,
       logging: true,
@@ -33,6 +39,9 @@ import { AdministratorQuiz } from './administrator-quiz/entities/administrator-q
     CategoriesModule, 
     MediasModule, 
     AdministratorQuizModule,
+    QuestionsModule,
+    AnswersModule,
+    AnswerQuestionModule
   ],
   controllers: [AppController],
   providers: [AppService],

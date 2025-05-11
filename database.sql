@@ -76,3 +76,35 @@ CREATE TABLE IF NOT EXISTS administrator_quiz (
 
 -- Vérification des données insérées
 SELECT * FROM administrator_quiz;
+
+-- Création de la table Questions
+CREATE TABLE IF NOT EXISTS Question (
+    idQuestion SERIAL PRIMARY KEY,
+    description VARCHAR(1000),
+    type VARCHAR(50),
+    duration INTEGER,
+    score INTEGER
+);
+
+-- Vérification des données insérées
+SELECT * FROM Question;
+
+-- Création de la table Answers
+CREATE TABLE IF NOT EXISTS Answer (
+    idAnswer SERIAL PRIMARY KEY,
+    value VARCHAR(50)
+);
+
+-- Vérification des données insérées
+SELECT * FROM Answer;
+
+-- Création de la table AnswerQuestion
+CREATE TABLE IF NOT EXISTS answer_question (
+    idQuestion SERIAL PRIMARY KEY,
+    idAnswer INTEGER NOT NULL,
+    state BOOLEAN,
+    "order" INTEGER
+);
+
+-- Vérification des données insérées
+SELECT * FROM answer_question;
