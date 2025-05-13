@@ -17,6 +17,11 @@ export class QuizQuestionController {
     return this.quizQuestionService.findOne(+idQuiz, +idQuestion);
   }
 
+  @Get(':idQuiz/')
+  findOneByQuiz(@Param('idQuiz') idQuiz: number) {
+    return this.quizQuestionService.findOneByQuiz(+idQuiz);
+  }
+
   @Post()
   create(@Body() createQuizQuestionDto: CreateQuizQuestionDto) {
     return this.quizQuestionService.create(createQuizQuestionDto);

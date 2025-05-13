@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateAnswerQuestionDto } from './dto/create-answer-question.dto';
 import { UpdateAnswerQuestionDto } from './dto/update-answer-question.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -23,6 +23,14 @@ export class AnswerQuestionService {
     return await this.answerQuestionRepository.findOne({
       where: { idQuestion, idAnswer },
     });
+  }
+
+  async findOneByQuestion(idQuestion: number): Promise<AnswerQuestion[]> {
+    const answerQuestion = await this.answerQuestionRepository.findBy({idQuestion: idQuestion});
+    if (!answerQuestion) {
+        throw new NotFoundException(`QuizQuestion with id ${idQuestion} not found`);
+    }
+    return answerQuestion;
   }
 
   async create(
