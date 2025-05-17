@@ -42,4 +42,9 @@ export class QuestionsController {
   remove(@Param('id') id: string) {
     return this.questionsService.remove(+id);
   }
+
+  @Delete()
+  removeAll() {
+    return this.questionsService.removeAll();
+  }  
 }

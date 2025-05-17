@@ -39,4 +39,9 @@ export class AnswersController {
   remove(@Param('id') id: string) {
     return this.answersService.remove(+id);
   }
+
+  @Delete()
+  public async removeAll() {
+    return this.answersService.removeAll();
+  }  
 }

@@ -90,7 +90,7 @@ CREATE TABLE IF NOT EXISTS Question (
 SELECT * FROM Question;
 
 -- Création de la table Answers
-CREATE TABLE IF NOT EXISTS Answer (
+CREATE TABLE IF NOT EXISTS answer (
     idAnswer SERIAL PRIMARY KEY,
     value VARCHAR(50)
 );

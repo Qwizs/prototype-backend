@@ -3,18 +3,21 @@ import { AdministratorQuizService } from './administrator-quiz.service';
 import { AdministratorQuizController } from './administrator-quiz.controller';
 import { AdministratorQuiz } from './entities/administrator-quiz.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { Quiz } from 'src/quiz/entities/quiz.entity';
-import { Administrator } from 'src/administrators/entities/administrator.entity';
-import { AdministratorsService } from 'src/administrators/administrators.service';
-import { QuizService } from 'src/quiz/quiz.service';
-import { AdministratorsController } from 'src/administrators/administrators.controller';
-import { AdministratorsModule } from 'src/administrators/administrators.module';
-import { Category } from 'src/categories/entities/category.entity';
+import { Quiz } from '../quiz/entities/quiz.entity';
+import { Administrator } from '../administrators/entities/administrator.entity';
+import { AdministratorsService } from '../administrators/administrators.service';
+import { QuizService } from '../quiz/quiz.service';
+import { AdministratorsController } from '../administrators/administrators.controller';
+import { AdministratorsModule } from '../administrators/administrators.module';
+import { Category } from '../categories/entities/category.entity';
+import { QuizQuestionService } from '../quiz-question/quiz-question.service';
+import { QuizQuestion } from '../quiz-question/entities/quiz-question.entity';
+import { AnswerQuestionService } from '../answer-question/answer-question.service';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([AdministratorQuiz, Administrator, Quiz, Category]), Administrator, Quiz, AdministratorsModule, AdministratorQuizModule],
+  imports: [TypeOrmModule.forFeature([AdministratorQuiz, Administrator, Quiz, Category, QuizQuestion]), Administrator, Quiz, AdministratorsModule],
   controllers: [AdministratorQuizController, AdministratorsController],
-  providers: [AdministratorQuizService, AdministratorsService, QuizService],
+  providers: [AdministratorQuizService, AdministratorsService, QuizService, QuizQuestionService],
   exports: [AdministratorQuizService]
 })
 export class AdministratorQuizModule {}

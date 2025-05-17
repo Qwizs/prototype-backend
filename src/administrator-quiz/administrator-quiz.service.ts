@@ -5,16 +5,19 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { AdministratorQuiz } from './entities/administrator-quiz.entity';
 import { Repository } from 'typeorm';
 import { ApiCreatedResponse } from '@nestjs/swagger';
-import { AdministratorsService } from 'src/administrators/administrators.service';
-import { QuizService } from 'src/quiz/quiz.service';
+import { QuizQuestionService } from '../quiz-question/quiz-question.service';
+import { QuizService } from '../quiz/quiz.service';
+import { AdministratorsService } from '../administrators/administrators.service'
 
 @Injectable()
 export class AdministratorQuizService {
 
   constructor(
-    @InjectRepository(AdministratorQuiz) private readonly administratorQuizRepository: Repository<AdministratorQuiz>,
+    @InjectRepository(AdministratorQuiz) 
+    private readonly administratorQuizRepository: Repository<AdministratorQuiz>,
     private readonly administratorsService: AdministratorsService,
-    private readonly quizService: QuizService
+    private readonly quizService: QuizService,
+    private readonly quizQuestionService: QuizQuestionService
   ) {}
 
   @ApiCreatedResponse({
@@ -147,6 +150,7 @@ export class AdministratorQuizService {
       this.administratorQuizRepository,
       this.administratorsService,
       this.quizService,
+      this.quizQuestionService
     );
     
     // Récupérer tous les quiz associés à l'administrateur
@@ -159,8 +163,9 @@ export class AdministratorQuizService {
     // Supprimer chaque quiz un par un
     for (const quiz of administratorQuiz) {
       console.log(quiz);
-      await this.remove(idA, quiz.idQuiz); // Appeler la méthode remove pour chaque quiz
-      await this.quizService.remove(+quiz.idQuiz);
+      await this.quizQuestionService.removeAllByQuiz(+quiz.idQuiz); // on supprime la liaison quiz-question
+      await this.remove(+idA, +quiz.idQuiz); // on supprime la liaison administrator-quiz
+      await this.quizService.remove(+quiz.idQuiz); // on supprime tous les quiz de l'administrateur
     }
     
     // Retourner une réponse de succès

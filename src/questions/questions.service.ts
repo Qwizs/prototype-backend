@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateQuestionDto } from './dto/create-question.dto';
 import { UpdateQuestionDto } from './dto/update-question.dto';
 import { Question } from './entities/question.entity';
@@ -20,8 +20,12 @@ export class QuestionsService {
     return this.repository.find();
   }
 
-  findOne(id: number): Promise<Question> {
-    return this.repository.findOne({ where: { idQuestion: Equal(id) } });
+  async findOne(id: number): Promise<Question> {
+    const question = await this.repository.findOneBy({idQuestion: id});
+    if (!question) {
+        throw new NotFoundException(`Question with id ${id} not found`);
+    }    
+    return question;
   }
 
   async update(
@@ -38,4 +42,21 @@ export class QuestionsService {
       .delete(id)
       .then((response) => response.affected === 1);
   }
+
+  async removeAll(): Promise<Question[]> {
+
+    const questions = await this.repository.find();
+    
+    if (questions.length === 0) {
+      throw new NotFoundException(`Question list is empty`);
+    }
+
+    // Réinitialiser la séquence de la base de données SQLite pour l'auto-incrément
+    await this.repository.query(
+      `TRUNCATE TABLE question RESTART IDENTITY CASCADE;`
+    );    
+    
+    // Retourner les questions supprimés
+    return questions;
+  } 
 }

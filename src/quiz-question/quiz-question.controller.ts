@@ -36,4 +36,19 @@ export class QuizQuestionController {
   remove(@Param('idQuiz') idQuiz: string, @Param('idQuestion') idQuestion: string) {
     return this.quizQuestionService.remove(+idQuiz, +idQuestion);
   }
+
+  @Delete(':idQuiz')
+  removeByQuiz(@Param('idQuiz') idQuiz: string) {
+    return this.quizQuestionService.removeByQuiz(+idQuiz);
+  }
+
+  @Delete()
+  removeAll() {
+    return this.quizQuestionService.removeAll();
+  }    
+
+  @Delete('1/1/:idQuiz')
+  removeAllByQuiz(@Param('idQuiz') idQ: number) {
+    return this.quizQuestionService.removeAllByQuiz(+idQ);
+  }  
 }

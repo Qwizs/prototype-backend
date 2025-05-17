@@ -4,8 +4,8 @@ import { UpdateAnswerQuestionDto } from './dto/update-answer-question.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Equal, Repository } from 'typeorm';
 import { AnswerQuestion } from './entities/answer-question.entity';
-import { Answer } from 'src/answers/entities/answer.entity';
-import { AnswersService } from 'src/answers/answers.service';
+import { Answer } from '../answers/entities/answer.entity';
+import { AnswersService } from '../answers/answers.service';
 
 @Injectable()
 export class AnswerQuestionService {
@@ -19,7 +19,7 @@ export class AnswerQuestionService {
     return await this.answerQuestionRepository.find();
   }
 
-  async findOne(idQuestion: number, idAnswer: number): Promise<AnswerQuestion> {
+  async findOne(idQuestion: number, idAnswer: number): Promise<AnswerQuestion | null> {
     return await this.answerQuestionRepository.findOne({
       where: { idQuestion, idAnswer },
     });
@@ -42,7 +42,7 @@ export class AnswerQuestionService {
     return await this.answerQuestionRepository.save(answerQuestion);
   }
 
-  async findAnswer(idQuestion: number): Promise<Answer[]> {
+  async findAnswer(idQuestion: number): Promise<(Answer | null)[]> {
     
     const answersId: AnswerQuestion[] =
       await this.answerQuestionRepository.find({
@@ -60,7 +60,7 @@ export class AnswerQuestionService {
     idQuestion: number,
     idAnswer: number,
     updateAnswerQuestionDto: UpdateAnswerQuestionDto,
-  ): Promise<AnswerQuestion> {
+  ): Promise<AnswerQuestion | null> {
     await this.answerQuestionRepository.update(
       { idQuestion, idAnswer },
       updateAnswerQuestionDto,
@@ -71,4 +71,48 @@ export class AnswerQuestionService {
   async remove(idQuestion: number, idAnswer: number): Promise<void> {
     await this.answerQuestionRepository.delete({ idQuestion, idAnswer });
   }
+
+  async removeAll(): Promise<AnswerQuestion[]> {
+
+    const answerQuestions = await this.answerQuestionRepository.find();
+    console.log(answerQuestions);
+
+    if (answerQuestions.length === 0) {
+      throw new NotFoundException(`Answer list is empty`);
+    }
+
+    // Réinitialiser la séquence de la base de données SQLite pour l'auto-incrément
+    await this.answerQuestionRepository.query(
+      `TRUNCATE TABLE answer_question RESTART IDENTITY CASCADE;`
+    );    
+    
+    // Retourner les réponses supprimées
+    return answerQuestions;
+  }   
+
+  async removeAllByQuestion(idQ: number): Promise<AnswerQuestion[]> {
+    console.log("idQ", idQ);
+    
+    const answerQuestionService = new AnswerQuestionService(
+      this.answerQuestionRepository,
+      this.answerService
+    );
+    
+    // Récupérer tous les réponses associées à la question
+    const answerQuestion = await answerQuestionService.findOneByQuestion(idQ);
+    
+    if (answerQuestion.length === 0) {
+      throw new NotFoundException(`No answers found for the question with id ${idQ}`);
+    }
+  
+    // Supprimer chaque réponse une par une
+    for (const answer of answerQuestion) {
+      console.log(answer);
+      await this.remove(+idQ, +answer.idAnswer); // Appeler la méthode remove pour chaque réponse
+      await this.answerService.remove(+answer.idAnswer);
+    }
+    
+    // Retourner une réponse de succès
+    return answerQuestion;
+  }  
 }

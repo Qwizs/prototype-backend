@@ -6,9 +6,6 @@ import {
   ConnectedSocket,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
-import { AnswersService } from 'src/answers/answers.service';
-import { QuestionsService } from 'src/questions/questions.service';
-import { QuizQuestionService } from 'src/quiz-question/quiz-question.service';
 
 @WebSocketGateway({
   cors: {
@@ -24,11 +21,6 @@ export class DemoGateway {
   @WebSocketServer()
   server: Server;
 
-  constructor (
-    private readonly questionService: QuestionsService,
-    private readonly answersService: AnswersService,
-    private readonly quizQuestionService: QuizQuestionService,
-  ){}
   private participants: { [quizCode: string]: string[] } = {};
   private scores: { [quizCode: string]: { [user: string]: number } } = {};
   private userResponses: { [room: string]: Set<string> } = {};
@@ -56,22 +48,9 @@ export class DemoGateway {
   };
 
   @SubscribeMessage('generateQuizCode')
-  async handleGenerateQuizCode(@ConnectedSocket() socket: Socket, @MessageBody()data:any) {
+  handleGenerateQuizCode(@ConnectedSocket() socket: Socket) {
       console.log("test");
-      const quizId = data.quizId;
-
-      const quizQuestions = await this.quizQuestionService.findOneByQuiz(quizId);
-  
-      const quizData = await Promise.all(
-        questions.map(async (question) => {
-          const answers = await this.answersService.findByQuestionId(question.id);
-          return {
-            ...question,
-            answers,
-          };
-        })
-      );
-  
+    
     const quizCode = Math.random().toString(36).slice(2, 9); // Generate a random code
     socket.emit('quizCodeGenerated', quizCode);
   }

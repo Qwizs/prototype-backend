@@ -58,4 +58,14 @@ export class AnswerQuestionController {
   ) {
     return this.answerQuestionService.remove(+idQuestion, +idAnswer);
   }
+
+  @Delete('all')
+  removeAll() {
+    return this.answerQuestionService.removeAll();
+  }   
+
+  @Delete('1/1/:idQuestion')
+  removeAllByQuestion(@Param('idQuestion') idQ: number) {
+    return this.answerQuestionService.removeAllByQuestion(+idQ);
+  }  
 }
