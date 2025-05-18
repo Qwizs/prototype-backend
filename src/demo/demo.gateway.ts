@@ -6,6 +6,7 @@ import {
   ConnectedSocket,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
+import { AnswerQuestionService } from 'src/answer-question/answer-question.service';
 import { QuestionsService } from 'src/questions/questions.service';
 import { QuizQuestionService } from 'src/quiz-question/quiz-question.service';
 
@@ -26,45 +27,44 @@ export class DemoGateway {
   private participants: { [quizCode: string]: string[] } = {};
   private scores: { [quizCode: string]: { [user: string]: number } } = {};
   private userResponses: { [room: string]: Set<string> } = {};
-  private answers: { [room: string]: { [user: string]: string } } = {};
+  private answers: {
+    [room: string]: {
+      [user: string]: { answer: string; score: number };
+    };
+  } = {};
 
-  constructor ( 
+  constructor(
     private readonly questionService: QuestionsService,
+    private readonly answsersQuestionService: AnswerQuestionService,
     private readonly quizQuestionsService: QuizQuestionService,
-    ){
-   
-  }
+  ) {}
+  private quizData = {
+    questions: [],
+    currentQuestionIndex: 0,
+  };
+  async handleGetQuizData() {
+    const data2 = await Promise.all(
+      (await this.quizQuestionsService.findByQuiz(1)).map(async (item) => {
+        const question = await this.questionService.findOne(item.idQuestion);
+        const answers = await this.answsersQuestionService.findAnswers(
+          item.idQuestion,
+        );
+        const correctAnswer =
+          await this.answsersQuestionService.findCorrectAnswer(item.idQuestion);
+        return {
+          question: question.description,
+          options: answers.map((answer) => answer.value),
+          correctOption: correctAnswer.map((answer) => answer.value),
+        };
+      }),
+    );
 
-  // private quizData = {
-  //   questions: [
-  //     {
-  //       question: 'What is the capital of France?',
-  //       options: ['Paris', 'London', 'Berlin', 'Madrid'],
-  //       correctOption: 'Paris',
-  //     },
-  //     {
-  //       question: 'What is the capital of England?',
-  //       options: ['Paris', 'London', 'Berlin', 'Madrid'],
-  //       correctOption: 'London',
-  //     },
-  //     {
-  //       question: 'What is the capital of Spain?',
-  //       options: ['Paris', 'London', 'Berlin', 'Madrid'],
-  //       correctOption: 'Madrid',
-  //     },
-  //   ],
-  //   currentQuestionIndex: 0,
-  // };
-
-  @SubscribeMessage('getQuizData')
-  async handleGetQuizData(@ConnectedSocket() socket: Socket, @MessageBody() data: any) {
-    const data  = await this.quizQuestionsService.f
-    console.log('Received request for quiz data:', data);
-    socket.emit('quizData', data);
+    this.quizData.questions = data2;
   }
 
   @SubscribeMessage('generateQuizCode')
-  handleGenerateQuizCode(@ConnectedSocket() socket: Socket) {
+  async handleGenerateQuizCode(@ConnectedSocket() socket: Socket) {
+    await this.handleGetQuizData();
     const quizCode = Math.random().toString(36).slice(2, 9); // Generate a random code
     socket.emit('quizCodeGenerated', quizCode);
   }
@@ -72,18 +72,16 @@ export class DemoGateway {
   @SubscribeMessage('joinWaitingRoom')
   handleJoinWaitingRoom(
     @ConnectedSocket() socket: Socket,
-    @MessageBody() data: { user: string; quizCode: string },
+    @MessageBody() data: { user: string; quizCode: string; isOwner: boolean },
   ) {
-    const { user, quizCode } = data;
+    const { user, quizCode, isOwner } = data;
     socket.join(quizCode);
 
-    // Initialiser la salle si besoin
     if (!this.participants[quizCode]) {
       this.participants[quizCode] = [];
     }
 
-    // ✅ Empêcher les doublons
-    if (!this.participants[quizCode].includes(user)) {
+    if (!this.participants[quizCode].includes(user) && !isOwner) {
       this.participants[quizCode].push(user);
     }
 
@@ -91,7 +89,7 @@ export class DemoGateway {
     if (!this.scores[quizCode]) {
       this.scores[quizCode] = {};
     }
-    if (!this.scores[quizCode][user]) {
+    if (!this.scores[quizCode][user] && !isOwner) {
       this.scores[quizCode][user] = 0;
     }
 
@@ -99,7 +97,9 @@ export class DemoGateway {
     socket.emit('currentParticipants', this.participants[quizCode]);
 
     // Informer les autres joueurs (optionnel, pour affichage live)
-    socket.to(quizCode).emit('userJoined', user);
+    if (!isOwner) {
+      socket.to(quizCode).emit('userJoined', user);
+    }
   }
 
   @SubscribeMessage('startQuiz')
@@ -124,12 +124,14 @@ export class DemoGateway {
     this.server.to(quizCode).emit('startQuiz');
     this.sendNextQuestion(quizCode);
   }
+
   @SubscribeMessage('joinQuizRoom')
   handleJoinQuizRoom(
     @ConnectedSocket() socket: Socket,
     @MessageBody() data: { user: string; room: string },
   ) {
     const { user, room } = data;
+    console.log(user);
     socket.join(room);
 
     if (!this.userResponses[room]) this.userResponses[room] = new Set();
@@ -146,23 +148,31 @@ export class DemoGateway {
 
   @SubscribeMessage('submitAnswer')
   handleSubmitAnswer(
-    @MessageBody() data: { user: string; room: string; answer: string },
+    @MessageBody()
+    data: {
+      user: string;
+      room: string;
+      answer: string;
+      score: number;
+    },
   ) {
-    const { room, user, answer } = data;
-
-    this.answers[room][user] = answer;
+    const { room, user, answer, score } = data;
+    this.answers[room][user] = {
+      answer: answer.trim().toLowerCase(),
+      score,
+    };
     this.userResponses[room].add(user);
 
-    const expectedUserCount =
-      this.server.sockets.adapter.rooms.get(room)?.size || 0;
+    const expectedUserCount = Object.keys(this.scores[room]).length;
 
     if (this.userResponses[room].size === expectedUserCount) {
       const currentQuestion =
         this.quizData.questions[this.quizData.currentQuestionIndex];
 
-      Object.entries(this.answers[room]).forEach(([u, ans]) => {
-        if (ans === currentQuestion.correctOption) {
-          this.scores[room][u] += 1;
+      Object.entries(this.answers[room]).forEach(([u, { answer, score }]) => {
+        if (currentQuestion.correctOption.includes(answer)) {
+          this.scores[room][u] += score;
+          console.log(score);
         }
       });
 
@@ -179,7 +189,7 @@ export class DemoGateway {
 
       setTimeout(() => {
         this.sendNextQuestion(room);
-      }, 3000);
+      }, 2000);
     }
   }
 

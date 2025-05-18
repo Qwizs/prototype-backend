@@ -28,6 +28,11 @@ export class AnswerQuestionController {
     return this.answerQuestionService.findOne(+idQuestion, +idAnswer);
   }
 
+  @Get(':idQuestion/')
+  findOneByQuestion(@Param('idQuestion') idQuestion: number) {
+    return this.answerQuestionService.findOneByQuestion(+idQuestion);
+  }
+
   @Post()
   create(@Body() createAnswerQuestionDto: CreateAnswerQuestionDto) {
     return this.answerQuestionService.create(createAnswerQuestionDto);

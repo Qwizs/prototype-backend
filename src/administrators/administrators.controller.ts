@@ -1,19 +1,38 @@
-import { Controller, Get, Post, Body, Put, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Put,
+  Param,
+  Delete,
+} from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { AdministratorsService } from './administrators.service';
 import { Administrator } from './entities/administrator.entity';
-import { retry } from 'rxjs';
 import { UpdateAdministratorDto } from './dto/update-administrator.dto';
 import { CreateAdministratorDto } from './dto/create-administrator.dto';
+import { QuizService } from 'src/quiz/quiz.service';
+import { Quiz } from 'src/quiz/entities/quiz.entity';
 
 @ApiTags('administrators')
 @Controller('administrators')
 export class AdministratorsController {
-  constructor(private readonly administratorsService: AdministratorsService) {}
+  constructor(
+    private readonly administratorsService: AdministratorsService,
+    private readonly quizService: QuizService,
+  ) {}
 
-  @Get('all')
+  @Get()
   public async getAll(): Promise<Administrator[]> {
     return this.administratorsService.getAll();
+  }
+
+  @Get('/usernames')
+  public async getAllUsernames(): Promise<string[]> {
+    return (await this.administratorsService.getAll()).map(
+      (admin) => admin.username,
+    );
   }
 
   @Get(':id')
@@ -21,25 +40,38 @@ export class AdministratorsController {
     return this.administratorsService.findOne(+id);
   }
 
-  @Get('findId/:username/:password')
-  public async findId(@Param('username') name: string, @Param('password') pw: string): Promise<number> {
-    return this.administratorsService.findId(name, pw);
+  @Get(':id/quizs')
+  public async findQuizs(@Param('id') id: number): Promise<Quiz[]> {
+    return this.quizService.findQuizsAdmin(+id);
   }
 
-  @Get(':username/:password')
-  public async exists(@Param('username') name: string, @Param('password') pw: string): Promise<Boolean> {
-    return this.administratorsService.exists(name, pw);
+  @Post('/verify')
+  public async verify(
+    @Body() body: { username: string; password: string },
+  ): Promise<Administrator> {
+    return this.administratorsService.verify(body.username, body.password);
   }
 
   @Post()
-  public async create(@Body() createAdministratorDto: CreateAdministratorDto): Promise<Administrator>  {
-    return this.administratorsService.create(createAdministratorDto.username, createAdministratorDto.password);
+  public async create(
+    @Body() createAdministratorDto: CreateAdministratorDto,
+  ): Promise<Administrator> {
+    return this.administratorsService.create(
+      createAdministratorDto.username,
+      createAdministratorDto.password,
+    );
   }
 
   @Put(':id')
-  public async update(@Param('id') id: number, @Body() updateAdministratorDto: UpdateAdministratorDto): Promise<Administrator> {
-    //console.log("Données reçues :", updateAdministratorDto);
-    return this.administratorsService.update(+id, updateAdministratorDto.username, updateAdministratorDto.password);
+  public async update(
+    @Param('id') id: number,
+    @Body() updateAdministratorDto: UpdateAdministratorDto,
+  ): Promise<Administrator> {
+    return this.administratorsService.update(
+      +id,
+      updateAdministratorDto.username,
+      updateAdministratorDto.password,
+    );
   }
 
   @Delete(':id')

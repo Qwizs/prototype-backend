@@ -1,4 +1,12 @@
-import { Controller, Get, Post, Body, Param, Delete, Put } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Param,
+  Delete,
+  Put,
+} from '@nestjs/common';
 import { QuizService } from './quiz.service';
 import { CreateQuizDto } from './dto/create-quiz.dto';
 import { UpdateQuizDto } from './dto/update-quiz.dto';
@@ -22,12 +30,23 @@ export class QuizController {
 
   @Post()
   public async create(@Body() createQuizDto: CreateQuizDto): Promise<Quiz> {
-    return this.quizService.create(createQuizDto.name, +createQuizDto.idCategory);
+    return this.quizService.create(
+      createQuizDto.name,
+      +createQuizDto.idCategory,
+      +createQuizDto.idAdministrator,
+    );
   }
 
   @Put(':id')
-  public async update(@Param('id') id: number, @Body() updateQuizDto: UpdateQuizDto): Promise<Quiz> {
-    return this.quizService.update(+id, updateQuizDto.name, +updateQuizDto.idCategory);
+  public async update(
+    @Param('id') id: number,
+    @Body() updateQuizDto: UpdateQuizDto,
+  ): Promise<Quiz> {
+    return this.quizService.update(
+      +id,
+      updateQuizDto.name,
+      +updateQuizDto.idCategory,
+    );
   }
 
   @Delete(':id')
@@ -38,5 +57,5 @@ export class QuizController {
   @Delete()
   public async removeAll(): Promise<Quiz[]> {
     return this.quizService.removeAll();
-  }  
+  }
 }

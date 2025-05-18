@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateAnswerQuestionDto } from './dto/create-answer-question.dto';
 import { UpdateAnswerQuestionDto } from './dto/update-answer-question.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -25,6 +25,14 @@ export class AnswerQuestionService {
     });
   }
 
+  async findOneByQuestion(idQuestion: number): Promise<AnswerQuestion[]> {
+    const answerQuestion = await this.answerQuestionRepository.findBy({idQuestion: idQuestion});
+    if (!answerQuestion) {
+        throw new NotFoundException(`QuizQuestion with id ${idQuestion} not found`);
+    }
+    return answerQuestion;
+  }
+
   async create(
     createAnswerQuestionDto: CreateAnswerQuestionDto,
   ): Promise<AnswerQuestion> {
@@ -34,11 +42,25 @@ export class AnswerQuestionService {
     return await this.answerQuestionRepository.save(answerQuestion);
   }
 
-  async findAnswer(idQuestion: number): Promise<Answer[]> {
+  async findAnswers(idQuestion: number): Promise<Answer[]> {
     
     const answersId: AnswerQuestion[] =
       await this.answerQuestionRepository.find({
         where: { idQuestion: Equal(idQuestion) },
+      });
+
+    return Promise.all(
+      answersId.map(
+        async (answerId) => await this.answerService.findOne(answerId.idAnswer),
+      ),
+    );
+  }
+
+  async findCorrectAnswer(idQuestion: number): Promise<Answer[]> {
+    
+    const answersId: AnswerQuestion[] =
+      await this.answerQuestionRepository.find({
+        where: { idQuestion: Equal(idQuestion), state: Equal(true) },
       });
 
     return Promise.all(

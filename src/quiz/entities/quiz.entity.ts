@@ -15,9 +15,8 @@ export class Quiz {
     @Column()
     public idCategory: number; // 👈 juste l'id, comme tu veux
 
-    @ManyToOne(() => Category)
-    @JoinColumn({ name: 'idCategory' })  // on lie à la même colonne
-    public category: Category;
+    @Column()
+    public idAdministrator: number;
 
     @Column()
     public name: string;
