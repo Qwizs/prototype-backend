@@ -4,12 +4,16 @@ import { UpdateQuestionDto } from './dto/update-question.dto';
 import { Question } from './entities/question.entity';
 import { Equal, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
+import { QuizQuestionService } from 'src/quiz-question/quiz-question.service';
+import { AnswerQuestionService } from 'src/answer-question/answer-question.service';
 
 @Injectable()
 export class QuestionsService {
   constructor(
     @InjectRepository(Question)
     private repository: Repository<Question>,
+    private readonly quizQuestionService: QuizQuestionService,
+    private readonly answerQuestionService: AnswerQuestionService,
   ) {}
 
   create(createQuestionDto: CreateQuestionDto): Promise<Question> {
@@ -33,7 +37,9 @@ export class QuestionsService {
     return this.repository.save(newQuestion);
   }
 
-  remove(id: number): Promise<boolean> {
+  async remove(id: number): Promise<boolean> {
+    this.quizQuestionService.removeByIdQuestion(id);
+    this.answerQuestionService.removeAllWithQuestion(id);
     return this.repository
       .delete(id)
       .then((response) => response.affected === 1);

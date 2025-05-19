@@ -26,9 +26,13 @@ export class AnswerQuestionService {
   }
 
   async findOneByQuestion(idQuestion: number): Promise<AnswerQuestion[]> {
-    const answerQuestion = await this.answerQuestionRepository.findBy({idQuestion: idQuestion});
+    const answerQuestion = await this.answerQuestionRepository.findBy({
+      idQuestion: idQuestion,
+    });
     if (!answerQuestion) {
-        throw new NotFoundException(`QuizQuestion with id ${idQuestion} not found`);
+      throw new NotFoundException(
+        `QuizQuestion with id ${idQuestion} not found`,
+      );
     }
     return answerQuestion;
   }
@@ -43,7 +47,6 @@ export class AnswerQuestionService {
   }
 
   async findAnswers(idQuestion: number): Promise<Answer[]> {
-    
     const answersId: AnswerQuestion[] =
       await this.answerQuestionRepository.find({
         where: { idQuestion: Equal(idQuestion) },
@@ -57,7 +60,6 @@ export class AnswerQuestionService {
   }
 
   async findCorrectAnswer(idQuestion: number): Promise<Answer[]> {
-    
     const answersId: AnswerQuestion[] =
       await this.answerQuestionRepository.find({
         where: { idQuestion: Equal(idQuestion), state: Equal(true) },
@@ -84,5 +86,9 @@ export class AnswerQuestionService {
 
   async remove(idQuestion: number, idAnswer: number): Promise<void> {
     await this.answerQuestionRepository.delete({ idQuestion, idAnswer });
+  }
+
+  async removeAllWithQuestion(idQuestion: number): Promise<void> {
+    await this.answerQuestionRepository.delete({ idQuestion });
   }
 }

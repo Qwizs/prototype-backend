@@ -51,6 +51,11 @@ export class AnswerQuestionController {
     );
   }
 
+  @Delete(':idQuestion/answers')
+  removeAllWithQuestion(@Param('idQuestion') idQuestion: string) {
+    return this.answerQuestionService.removeAllWithQuestion(+idQuestion);
+  }
+
   @Delete(':idQuestion/:idAnswer')
   remove(
     @Param('idQuestion') idQuestion: string,

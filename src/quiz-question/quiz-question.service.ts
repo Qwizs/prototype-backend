@@ -54,11 +54,32 @@ export class QuizQuestionService {
     return await this.findOne(idQuiz, idQuestion);
   }
 
+  async updateOrders(
+    idQuiz: number,
+    newOrders: { idQuestion: number; order: number }[],
+  ): Promise<QuizQuestion[]> {
+    for (const newOrder of newOrders) {
+      await this.quizQuestionRepository.update(
+        {
+          idQuiz: idQuiz,
+          idQuestion: newOrder.idQuestion,
+        },
+        { order: newOrder.order },
+      );
+    }
+
+    return await this.findByQuiz(idQuiz);
+  }
+
   async remove(idQuiz: number, idQuestion: number): Promise<void> {
     await this.quizQuestionRepository.delete({ idQuiz, idQuestion });
   }
 
   async removeByIdQuiz(idQuiz: number): Promise<void> {
     await this.quizQuestionRepository.delete({ idQuiz });
+  }
+
+  async removeByIdQuestion(idQuestion: number): Promise<void> {
+    await this.quizQuestionRepository.delete({ idQuestion });
   }
 }
