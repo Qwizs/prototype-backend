@@ -16,6 +16,7 @@ import { QuizQuestionService } from 'src/quiz-question/quiz-question.service';
       'http://172.27.192.1:3000',
       'http://172.20.10.2:3000',
       'http://localhost:3000',
+      'https://qwizs.wajrock.me',
     ],
     credentials: true,
   },
