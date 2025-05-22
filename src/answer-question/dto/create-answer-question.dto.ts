@@ -1,5 +1,5 @@
-import { IsBoolean, IsNumber } from "class-validator";
-import { PrimaryColumn } from "typeorm";
+import { IsBoolean, IsNumber } from 'class-validator';
+import { PrimaryColumn } from 'typeorm';
 
 export class CreateAnswerQuestionDto {
   @PrimaryColumn()
@@ -7,10 +7,10 @@ export class CreateAnswerQuestionDto {
 
   @PrimaryColumn()
   idAnswer: number;
-    
+
   @IsBoolean()
   state: boolean;
 
   @IsNumber()
-  order: number;    
+  order: number;
 }

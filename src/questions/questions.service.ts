@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { CreateQuestionDto } from './dto/create-question.dto';
 import { UpdateQuestionDto } from './dto/update-question.dto';
 import { Question } from './entities/question.entity';
@@ -13,6 +13,7 @@ export class QuestionsService {
     @InjectRepository(Question)
     private repository: Repository<Question>,
     private readonly quizQuestionService: QuizQuestionService,
+    @Inject(forwardRef(() => AnswerQuestionService))
     private readonly answerQuestionService: AnswerQuestionService,
   ) {}
 

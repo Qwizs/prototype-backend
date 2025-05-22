@@ -38,22 +38,26 @@ export class DemoGateway {
     private readonly answsersQuestionService: AnswerQuestionService,
     private readonly quizQuestionsService: QuizQuestionService,
   ) {}
+
   private quizData = {
     questions: [],
     currentQuestionIndex: 0,
   };
-  async handleGetQuizData() {
+  async handleGetQuizData(quizId: number) {
     const data2 = await Promise.all(
-      (await this.quizQuestionsService.findByQuiz(1)).map(async (item) => {
+      (await this.quizQuestionsService.findByQuiz(quizId)).map(async (item) => {
         const question = await this.questionService.findOne(item.idQuestion);
-        const answers = await this.answsersQuestionService.findAnswers(
+        const answers = await this.answsersQuestionService.findCompleteAnswers(
           item.idQuestion,
         );
         const correctAnswer =
-          await this.answsersQuestionService.findCorrectAnswer(item.idQuestion);
+          await this.answsersQuestionService.findCorrectAnswer(
+            item.idQuestion,
+            question.type,
+          );
         return {
-          question: question.description,
-          options: answers.map((answer) => answer.value),
+          infos: question,
+          options: answers,
           correctOption: correctAnswer.map((answer) => answer.value),
         };
       }),
@@ -63,8 +67,13 @@ export class DemoGateway {
   }
 
   @SubscribeMessage('generateQuizCode')
-  async handleGenerateQuizCode(@ConnectedSocket() socket: Socket) {
-    await this.handleGetQuizData();
+  async handleGenerateQuizCode(
+    @ConnectedSocket() socket: Socket,
+    @MessageBody() quizId: string,
+  ) {
+    await this.handleGetQuizData(+quizId);
+    console.log(this.quizData.questions);
+
     const quizCode = Math.random().toString(36).slice(2, 9); // Generate a random code
     socket.emit('quizCodeGenerated', quizCode);
   }
@@ -156,25 +165,19 @@ export class DemoGateway {
       score: number;
     },
   ) {
-    const { room, user, answer, score } = data;
+    const { room, user, score } = data;
     this.answers[room][user] = {
-      answer: answer.trim().toLowerCase(),
+      answer: '',
       score,
     };
     this.userResponses[room].add(user);
+    this.scores[room][user] += score;
 
     const expectedUserCount = Object.keys(this.scores[room]).length;
 
     if (this.userResponses[room].size === expectedUserCount) {
       const currentQuestion =
         this.quizData.questions[this.quizData.currentQuestionIndex];
-
-      Object.entries(this.answers[room]).forEach(([u, { answer, score }]) => {
-        if (currentQuestion.correctOption.includes(answer)) {
-          this.scores[room][u] += score;
-          console.log(score);
-        }
-      });
 
       this.server.to(room).emit('allUsersResponded');
       this.server.to(room).emit('revealAnswer', {
@@ -184,7 +187,6 @@ export class DemoGateway {
       this.userResponses[room].clear();
       this.answers[room] = {};
 
-      // Incrément ici, une fois qu'on a utilisé la question courante
       this.quizData.currentQuestionIndex++;
 
       setTimeout(() => {
@@ -215,7 +217,7 @@ export class DemoGateway {
     this.userResponses[room].clear();
     this.answers[room] = {};
 
-    this.quizData.currentQuestionIndex++; // 👈 incrément ici
+    this.quizData.currentQuestionIndex++;
 
     setTimeout(() => {
       this.sendNextQuestion(room);

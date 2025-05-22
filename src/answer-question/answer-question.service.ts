@@ -59,11 +59,42 @@ export class AnswerQuestionService {
     );
   }
 
-  async findCorrectAnswer(idQuestion: number): Promise<Answer[]> {
-    const answersId: AnswerQuestion[] =
-      await this.answerQuestionRepository.find({
+  async findAnswersFromQuestion(idQuestion: number): Promise<AnswerQuestion[]> {
+    return await this.answerQuestionRepository.find({
+      where: { idQuestion: Equal(idQuestion) },
+    });
+  }
+
+  async findCompleteAnswers(idQuestion: number): Promise<AnswerQuestion[]> {
+    const answersQuestion: any[] = await this.answerQuestionRepository.find({
+      where: { idQuestion: Equal(idQuestion) },
+    });
+
+    await Promise.all(
+      answersQuestion.map(async (element) => {
+        const answer = await this.answerService.findOne(element.idAnswer);
+        element.value = answer.value;
+      }),
+    );
+    return answersQuestion;
+  }
+
+  async findCorrectAnswer(
+    idQuestion: number,
+    questionType: string,
+  ): Promise<Answer[]> {
+    let answersId: AnswerQuestion[];
+
+    if (questionType === 'order') {
+      answersId = answersId = await this.answerQuestionRepository.find({
+        where: { idQuestion: Equal(idQuestion), state: Equal(true) },
+        order: { order: 'ASC' },
+      });
+    } else {
+      answersId = await this.answerQuestionRepository.find({
         where: { idQuestion: Equal(idQuestion), state: Equal(true) },
       });
+    }
 
     return Promise.all(
       answersId.map(
@@ -90,5 +121,9 @@ export class AnswerQuestionService {
 
   async removeAllWithQuestion(idQuestion: number): Promise<void> {
     await this.answerQuestionRepository.delete({ idQuestion });
+  }
+
+  async removeAllWithIdAnswer(idAnswer: number): Promise<void> {
+    await this.answerQuestionRepository.delete({ idAnswer });
   }
 }
