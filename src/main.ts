@@ -5,9 +5,8 @@ import { AppModule } from './app.module';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.enableCors({
-    origin: 'http://localhost:3000', // L'adresse de ton frontend
+    origin: ['http://localhost:3000', 'https://qwizs.wajrock.me'], // L'adresse de ton frontend
   });
-  
 
   const config = new DocumentBuilder()
     .setTitle('Gestion des Associations')
